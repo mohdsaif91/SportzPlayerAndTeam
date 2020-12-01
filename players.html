@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="topnav">
+        <a> 
+             <input type="text" id="playerNameOrTeamName"  placeholder="Search.." name="search">
+            <button onclick="searchTeamOrPlayer()">Search</button>
+        </a>
+    </div>
+    <div id="teamsList">
+    </div>
+    <div id="filterTeamsList">
+    </div>
+
+</body>
+<script>
+    getData();
+    let playerList=[]
+    async function getData() {
+        const teamsList=document.getElementById('teamsList');
+     let respone=await fetch("https://api.npoint.io/d6bd0efc05639084eb17/");
+     let data=await respone.json();
+     const offset = new Date().getTimezoneOffset();
+      playerList=data.playerList
+       playerList.sort((a,b)=>{
+            return a.Value-b.Value
+        })
+     for(let i=0;i<playerList.length;i++){
+        const div=document.createElement('div');
+        div.innerHTML = `<section class="cards" id="teamAndPlayer">
+  <a href="#" class="card">
+    <div class="card__image"//style="background-image: url('player-images/${playerList[i].Id}.jpg')" ></div>
+    <div class="content">
+      <div class="card__title">${playerList[i].PFName}</div>
+      <div class="card__snippet">Skills: <b>${playerList[i].SkillDesc}</b></div>
+      <div class="card__snippet">Value: <b>$ ${playerList[i].Value}</b></div>
+      <div class="card__snippet">Up Coming Matches List: <b>${playerList[i].UpComingMatchesList[0].CCode} VS ${playerList[i].UpComingMatchesList[0].VsCCode}</b></div>
+      <div class="card__snippet">next match time : <b>${playerList[i].UpComingMatchesList[0].MDate}</b> </div>
+    </div>
+  </a>`
+        teamsList.appendChild(div);
+     }
+    }
+
+    function searchTeamOrPlayer(){
+        let filterPlayerOrTeam=[]
+        const teamAndPlayer=document.getElementById('teamAndPlayer')
+        const teamsLists=document.getElementById('teamsList')
+        teamsLists===null?null:teamsLists.remove();
+        console.log(teamsLists);
+        
+        let searchName=document.getElementById('playerNameOrTeamName').value
+      filterPlayerOrTeam=playerList.filter(f=>f.PFName===searchName).map(m=>{
+         return m
+     })
+     if(filterPlayerOrTeam.length<=0){
+        filterPlayerOrTeam=playerList.filter(f=>f.TName===searchName).map(m=>{
+         return m
+     })
+     }
+     console.log(filterPlayerOrTeam);
+     const filterTeamsList=document.getElementById('filterTeamsList');
+     for(let i=0;i<filterPlayerOrTeam.length;i++){
+        const div=document.createElement('div');
+        div.innerHTML = `<section class="cards">
+  <a href="#" class="card">
+    <div class="card__image"//style="background-image: url('player-images/${playerList[i].Id}.jpg')" ></div>
+    <div class="content">
+      <div class="card__title">${filterPlayerOrTeam[i].PFName}</div>
+      <div class="card__snippet">Skills: ${filterPlayerOrTeam[i].SkillDesc}</div>
+      <div class="card__snippet">Value: $ ${filterPlayerOrTeam[i].Value}</div>
+      <div class="card__snippet">Up Coming Matches List: ${filterPlayerOrTeam[i].UpComingMatchesList[0].CCode} VS ${filterPlayerOrTeam[i].UpComingMatchesList[0].VsCCode}</div>
+      <div class="card__snippet">next match time : ${filterPlayerOrTeam[i].UpComingMatchesList[0].MDate} </div>
+    </div>
+  </a>`
+  filterTeamsList.appendChild(div);
+     }
+    }
+</script>
+
+</html>
